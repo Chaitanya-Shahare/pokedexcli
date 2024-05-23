@@ -3,9 +3,10 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/Chaitanya-Shahare/pokedexcli/pokecache"
 	"io"
-	"log"
 	"net/http"
+	"time"
 )
 
 type LocationsResponse struct {
@@ -23,50 +24,21 @@ var Config = map[string]string{
 	"Previous": "",
 }
 
+var cache = pokecache.NewCache(5 * time.Second)
+
 func callbackMap() error {
-
-	res, err := http.Get(Config["Next"])
-
+	data, err := fetchData(Config["Next"])
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 
-	body, err := io.ReadAll(res.Body)
-
-	res.Body.Close()
-
-	if res.StatusCode > 299 {
-		log.Fatalf("Response failed with status code: %d and\nbody: %s\n", res.StatusCode, body)
+	if data, ok := cache.Get(Config["Next"]); ok {
+		return processLocationsResponse(data, Config)
 	}
 
-	if err != nil {
-		log.Fatal(err)
-	}
+	cache.Add(Config["Next"], data)
 
-	response := LocationsResponse{}
-
-	// Unmarshal the JSON byte slice to a predefined struct
-	err = json.Unmarshal(body, &response)
-
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	if response.Next != nil {
-		Config["Next"] = *response.Next
-	}
-	if response.Previous != nil {
-		Config["Previous"] = *response.Previous
-	}
-
-	fmt.Println()
-	for _, result := range response.Results {
-		fmt.Println("\t" + result.Name)
-	}
-
-	fmt.Println()
-
-	return nil
+	return processLocationsResponse(data, Config)
 }
 
 func callbackMapb() error {
@@ -77,46 +49,57 @@ func callbackMapb() error {
 		return nil
 	}
 
-	res, err := http.Get(Config["Previous"])
-
-	if err != nil {
-		log.Fatal(err)
+	if data, ok := cache.Get(Config["Previous"]); ok {
+		return processLocationsResponse(data, Config)
 	}
+
+	data, err := fetchData(Config["Previous"])
+	if err != nil {
+		return err
+	}
+
+	cache.Add(Config["Previous"], data)
+
+	return processLocationsResponse(data, Config)
+}
+
+func fetchData(url string) ([]byte, error) {
+	res, err := http.Get(url)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
 
 	body, err := io.ReadAll(res.Body)
-
-	res.Body.Close()
+	if err != nil {
+		return nil, err
+	}
 
 	if res.StatusCode > 299 {
-		log.Fatalf("Response failed with status code: %d and\nbody: %s\n", res.StatusCode, body)
+		return nil, fmt.Errorf("response failed with status code: %d and body: %s", res.StatusCode, body)
 	}
 
-	if err != nil {
-		log.Fatal(err)
-	}
+	return body, nil
+}
 
+func processLocationsResponse(data []byte, config map[string]string) error {
 	response := LocationsResponse{}
-
-	// Unmarshal the JSON byte slice to a predefined struct
-	err = json.Unmarshal(body, &response)
-
+	err := json.Unmarshal(data, &response)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 
 	if response.Next != nil {
-
-		Config["Next"] = *response.Next
+		config["Next"] = *response.Next
 	}
 	if response.Previous != nil {
-		Config["Previous"] = *response.Previous
+		config["Previous"] = *response.Previous
 	}
 
 	fmt.Println()
 	for _, result := range response.Results {
 		fmt.Println("\t" + result.Name)
 	}
-
 	fmt.Println()
 
 	return nil
