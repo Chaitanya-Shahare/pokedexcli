@@ -26,7 +26,7 @@ var Config = map[string]string{
 
 var cache = pokecache.NewCache(5 * time.Second)
 
-func callbackMap() error {
+func callbackMap(args []string) error {
 	data, err := fetchData(Config["Next"])
 	if err != nil {
 		return err
@@ -41,7 +41,7 @@ func callbackMap() error {
 	return processLocationsResponse(data, Config)
 }
 
-func callbackMapb() error {
+func callbackMapb(args []string) error {
 	if Config["Previous"] == "" {
 		fmt.Println(Config["Previous"])
 		fmt.Println("\tNo previous location areas")

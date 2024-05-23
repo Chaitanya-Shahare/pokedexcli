@@ -10,7 +10,7 @@ import (
 type cliCommand struct {
 	name        string
 	description string
-	callback    func() error
+	callback    func([]string) error
 }
 
 func start_repl() {
@@ -39,7 +39,7 @@ func start_repl() {
 			continue
 		}
 
-		c.callback()
+		c.callback(words)
 
 	}
 }

@@ -2,7 +2,7 @@ package main
 
 import "fmt"
 
-func callbackHelp() error {
+func callbackHelp(args []string) error {
 
 	commands := GetCommands()
 
