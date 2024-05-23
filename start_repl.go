@@ -26,6 +26,10 @@ func start_repl() {
 
 		words := strings.Fields(text)
 
+		if len(words) == 0 {
+			continue
+		}
+
 		command := words[0]
 
 		c, ok := commands[command]
