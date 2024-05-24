@@ -283,14 +283,12 @@ var Pokedex = map[string]PokemonResponse{}
 
 func callbackCatch(args []string) error {
 
+	fmt.Println()
+	defer fmt.Println()
 	if len(args) < 2 {
-		fmt.Println()
 		fmt.Println("\tPlease provide a location area ID")
-		fmt.Println()
 		return nil
 	}
-
-	fmt.Println()
 
 	fmt.Printf("\tThrowing a Pokeball at %v ...\n", args[1])
 
@@ -315,13 +313,9 @@ func callbackCatch(args []string) error {
 
 	if catchChance < 50 { // 50% chance to catch
 		Pokedex[pokemon.Name] = pokemon
-		fmt.Println()
 		fmt.Printf("\tYou caught a %s!\n", pokemon.Name)
-		fmt.Println()
 	} else {
-		fmt.Println()
 		fmt.Printf("\tThe %s escaped!\n", pokemon.Name)
-		fmt.Println()
 	}
 
 	return nil
