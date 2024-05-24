@@ -285,12 +285,15 @@ func callbackCatch(args []string) error {
 
 	fmt.Println()
 	defer fmt.Println()
+
 	if len(args) < 2 {
 		fmt.Println("\tPlease provide a location area ID")
 		return nil
 	}
 
 	fmt.Printf("\tThrowing a Pokeball at %v ...\n", args[1])
+
+	fmt.Println()
 
 	url := "https://pokeapi.co/api/v2/pokemon/" + args[1]
 
@@ -314,6 +317,8 @@ func callbackCatch(args []string) error {
 	if catchChance < 50 { // 50% chance to catch
 		Pokedex[pokemon.Name] = pokemon
 		fmt.Printf("\tYou caught a %s!\n", pokemon.Name)
+		fmt.Println()
+		fmt.Println("\tYou may inspect it with the 'inspect' command.")
 	} else {
 		fmt.Printf("\tThe %s escaped!\n", pokemon.Name)
 	}
