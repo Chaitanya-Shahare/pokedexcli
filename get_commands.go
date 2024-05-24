@@ -26,6 +26,12 @@ func GetCommands() map[string]cliCommand {
 			callback:    callbackExplore,
 		},
 
+		"catch": {
+			name:        "catch",
+			description: "Catch a Pokemon",
+			callback:    callbackCatch,
+		},
+
 		"exit": {
 			name:        "exit",
 			description: "Exit the Pokedex",
